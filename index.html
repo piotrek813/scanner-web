@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Camera Capture</title>
+
+	<style>
+		body {
+			font-family: sans-serif;
+			text-align: center;
+			background: #222;
+			color: white;
+		}
+
+		video {
+			width: 640px;
+			max-width: 95%;
+			border-radius: 8px;
+		}
+
+		canvas {
+			display: none;
+		}
+
+		button {
+			padding: 10px 20px;
+			font-size: 18px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h2>Camera Capture Client</h2>
+
+	<video id="video" autoplay playsinline></video>
+	<canvas id="canvas"></canvas>
+
+	<br><br>
+
+	<button id="start">Enable Camera</button>
+
+	<script>
+		const video = document.getElementById("video");
+		const canvas = document.getElementById("canvas");
+
+		document.getElementById("start").onclick = async () => {
+
+			await navigator.mediaDevices.getUserMedia({
+
+				ideal: "environment"
+			}
+				}
+			}).then(stream => {
+				video.srcObject = stream;
+			});
+
+		const ws = new WebSocket(
+			(location.protocol === "https:" ? "wss://" : "ws://")
+			+ location.host + "/ws"
+		);
+
+		ws.onmessage = (e) => {
+			const msg = JSON.parse(e.data);
+
+			if (msg.capture) {
+				capture(msg.capture);
+			}
+		};
+		};
+
+		function capture(filename) {
+
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
+
+			const ctx = canvas.getContext("2d");
+			ctx.drawImage(video, 0, 0);
+
+			canvas.toBlob(blob => {
+
+				const url = URL.createObjectURL(blob);
+
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = filename;
+
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+
+				URL.revokeObjectURL(url);
+
+			}, "image/jpeg", 0.95);
+		}
+	</script>
+
+</body>
+
+</html>

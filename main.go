@@ -43,7 +43,7 @@ func main() {
 	log.Println("Open http://localhost:8080")
 	log.Println("Trigger: http://localhost:8080/capture?name=test.jpg")
 
-	log.Fatal(http.ListenAndServeTLS("xdr.com.pl:8080", "cert.pem", "key.pem", nil))
+	log.Fatal(http.ListenAndServeTLS(":8443", "cert.pem", "key.pem", nil))
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
